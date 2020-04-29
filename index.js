@@ -111,5 +111,5 @@ const config = {
     }
 
     // Write the package to the file
-    fs.writeFileSync("package.json", JSON.stringify(pkg))
+    fs.writeFileSync(targetPkgFile, JSON.stringify(pkg))
 })()
