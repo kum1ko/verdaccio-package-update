@@ -14,7 +14,12 @@ uplinks:
 ```
 这样当本地缓存了某个包时，将不会去上游获取数据。
 
-之后配置好`VERDACCIO_STORAGE_DIR`，执行命令：
+之后配置好`.env`
+```dotenv
+VERDACCIO_STORAGE_DIR=/tmp/storage
+UPLINK_FETCH_TIMEOUT=3000
+```
+执行命令：
 ```shell script
 yarn 
 node index

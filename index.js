@@ -1,4 +1,5 @@
 require("colors")
+require('dotenv').config()
 const fs     = require("fs")
 const mkdirp = require("mkdirp")
 const path   = require("path")
@@ -6,8 +7,8 @@ const axios  = require("axios")
 const loGet  = require("lodash/get")
 
 const config = {
-          VERDACCIO_STORAGE_DIR: "./storage",
-          UPLINK_FETCH_TIMEOUT: 3000,
+          VERDACCIO_STORAGE_DIR: process.env.VERDACCIO_STORAGE_DIR,
+          UPLINK_FETCH_TIMEOUT: parseInt(process.env.UPLINK_FETCH_TIMEOUT || 3000),
       }
 
 ;(async () => {
@@ -40,12 +41,8 @@ const config = {
 
     pkg["dependencies"]   = {}
     let modulesNeedUpdate = []
-    for (let module of readDir) {
-        // Exclude some files, such as verdaccio configuration
-        if (module.match(/^(\.|@)/)) {
-            continue
-        }
 
+    async function checkUpdatedByModule(module) {
         console.log(module);
 
         let localLatest = undefined
@@ -72,7 +69,7 @@ const config = {
                     })
                     break
                 } catch (e) {
-                    console.log(`${e.message}, retring...`);
+                    console.log(`${e.message}, retring...`.red);
                 }
             }
 
@@ -102,6 +99,25 @@ const config = {
         } catch (e) {
             console.log(e);
         }
+    }
+
+    for (let module of readDir) {
+        // Exclude some files, such as verdaccio configuration
+        if (module.match(/^(\.)/)) {
+            continue
+        }
+
+        if (module.indexOf("@") === 0) {
+            // namespaced modules
+            let scopedModules = fs.readdirSync(path.join(storage, module));
+            for (let scopedModule of scopedModules) {
+                await checkUpdatedByModule(`${module}/${scopedModule}`)
+            }
+            continue
+        }
+
+        await checkUpdatedByModule(module)
+
     }
 
     if (modulesNeedUpdate.length) {
