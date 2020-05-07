@@ -7,8 +7,9 @@ const axios  = require("axios")
 const loGet  = require("lodash/get")
 
 const config = {
-          VERDACCIO_STORAGE_DIR: process.env.VERDACCIO_STORAGE_DIR,
+          VERDACCIO_STORAGE_DIR: process.env.VERDACCIO_STORAGE_DIR || "/tmp/verdaccio/storage",
           UPLINK_FETCH_TIMEOUT: parseInt(process.env.UPLINK_FETCH_TIMEOUT || 3000),
+          UPLINK_URL: process.env.UPLINK_URL || "http://registry.npmjs.org/",
       }
 
 ;(async () => {
@@ -61,7 +62,7 @@ const config = {
             while (true) {
                 try {
                     result = await axios({
-                        url: "http://registry.npm.taobao.org/" + module,
+                        url: config.UPLINK_URL + module,
                         headers: {
                             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36",
                         },
