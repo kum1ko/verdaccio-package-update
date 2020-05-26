@@ -59,6 +59,7 @@ const config = {
         try {
             let result = {}
 
+            let uplinkLatest = undefined
             while (true) {
                 try {
                     result = await axios({
@@ -68,17 +69,20 @@ const config = {
                         },
                         timeout: config.UPLINK_FETCH_TIMEOUT,
                     })
-                    break
                 } catch (e) {
                     console.log(`${e.message}, retring...`.red);
+                    continue
                 }
-            }
 
-            let uplinkLatest = loGet(result.data, '[dist-tags][latest]')
+                uplinkLatest = loGet(result.data, '[dist-tags][latest]')
 
-            if (!uplinkLatest) {
-                console.log(`Error in getting upstream data: ${module}`.red);
-                process.exit()
+                if (!uplinkLatest) {
+                    console.log(result.data);
+                    console.log(`Error in getting upstream data: ${module}`.red);
+                    continue
+                }
+
+                break
             }
 
             // If no Local `package.json` is read.
